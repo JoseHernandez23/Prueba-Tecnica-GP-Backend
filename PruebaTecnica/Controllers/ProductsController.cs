@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Text;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Options;
 
 namespace PruebaTecnica.Controllers
 {
@@ -12,18 +13,18 @@ namespace PruebaTecnica.Controllers
     public class ProductsController : Controller
     {
         private readonly HttpClient _httpClient;
+        private readonly ApiSettings _apiSettings;
 
-        public ProductsController(HttpClient httpClient)
+        public ProductsController(HttpClient httpClient, IOptions<ApiSettings> apiSettings)
         {
             _httpClient = httpClient;
+            _apiSettings = apiSettings.Value;
         }
 
         [HttpGet("GetAllProducts")]
         public async Task<ProductsModel> GetAllProducts()
-        {
-            var url = "https://dummyjson.com/products";
-
-            var respuesta = await _httpClient.GetAsync(url);
+        {          
+            var respuesta = await _httpClient.GetAsync(_apiSettings.ProductosUrlGetAll);
 
             if (respuesta.IsSuccessStatusCode)
             {
@@ -40,7 +41,7 @@ namespace PruebaTecnica.Controllers
         [HttpGet("GetProduct/{id}")]
         public async Task<Product> GetProduct(int id)
         {
-            var url = $"https://dummyjson.com/products/{id}";
+            var url = _apiSettings.ProductosUrlGetProduct.Replace("{id}", id.ToString());
             var respuesta = await _httpClient.GetAsync(url);
 
             if (respuesta.IsSuccessStatusCode)
@@ -53,31 +54,12 @@ namespace PruebaTecnica.Controllers
             {
                 throw new Exception($"Error en la solicitud: {respuesta.StatusCode}");
             }
-        }
-
-        [HttpGet("GetAllCategories")]
-        public async Task<List<string>> GetAllCategories()
-        {
-            var url = "https://dummyjson.com/products/category-list";
-            var respuesta = await _httpClient.GetAsync(url);
-
-            if (respuesta.IsSuccessStatusCode)
-            {
-                var contenidoJson = await respuesta.Content.ReadAsStringAsync();
-                var resultado = JsonConvert.DeserializeObject<List<string>>(contenidoJson);
-                return resultado;
-            }
-            else
-            {
-                throw new Exception($"Error en la solicitud: {respuesta.StatusCode}");
-            }
-        }
-
+        }       
 
         [HttpGet("GetByCategory/{category}")]
         public async Task<ProductsModel> GetByCategory(string category)
         {
-            var url = $"https://dummyjson.com/products/category/{category}";
+            var url = _apiSettings.ProductosUrlGetByCategory.Replace("{category}", category);
             var respuesta = await _httpClient.GetAsync(url);
 
             if (respuesta.IsSuccessStatusCode)

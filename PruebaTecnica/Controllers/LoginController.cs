@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Text;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Options;
 
 namespace PruebaTecnica.Controllers
 {
@@ -12,16 +13,18 @@ namespace PruebaTecnica.Controllers
     public class LoginController : Controller
     {
         private readonly HttpClient _httpClient;
+        private readonly ApiSettings _apiSettings;
 
-        public LoginController(HttpClient httpClient)
+        public LoginController(HttpClient httpClient, IOptions<ApiSettings> apiSettings)
         {
             _httpClient = httpClient;
+            _apiSettings = apiSettings.Value;
         }
 
         [HttpPost("Login")]
         public async Task<LoginResponse> Login(LoginRequest user)
         {
-            var url = "https://dummyjson.com/user/login";
+            var url = _apiSettings.LoginUrl;
 
             var json = JsonConvert.SerializeObject(user);
             var contenido = new StringContent(json, Encoding.UTF8, "application/json");

@@ -1,3 +1,4 @@
+using PruebaTecnica;
 using PruebaTecnica.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient<LoginController>();
+builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
+
 
 builder.Services.AddCors(options =>
 {
